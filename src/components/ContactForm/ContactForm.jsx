@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import * as css from '../All.styled';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import { nanoid } from 'nanoid';
 import { useDispatch, useSelector } from 'react-redux'
-import { add } from '../../redux/contact/contactSlice';
+import { GetContacts, PostContacts } from '../../redux/contact/contactSlice';
 
 const ContactForm = () => {
-    const contacts = useSelector((state) => state.contact.contacts)
+    const contacts = useSelector((state) => state.contact.contacts.items)
     const dispatch = useDispatch();
     const [name, setName] = useState('');
-    const [number, setNumber] = useState('');
+    const [phone, setPhone] = useState('');
 
     const addContact = () => {
 
         const contact = {
-            id: nanoid(),
             name,
-            number,
+            phone,
         }
 
-        if (name === '' || number === '') {
+        if (name === '' || phone === '') {
             Notify.failure(`Enter the contact's name and phone number.`);
             return;
         }
@@ -30,9 +28,11 @@ const ContactForm = () => {
             Notify.failure(`${name} is already in contacts.`);
 
         } else {
-            dispatch(add(contact))
+            dispatch(PostContacts(contact)).then(() => {
+                dispatch(GetContacts());
+            });
             setName('');
-            setNumber('');
+            setPhone('');
         }
     }
 
@@ -57,8 +57,8 @@ const ContactForm = () => {
                     name="number"
                     pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
                     title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-                    value={number}
-                    onChange={(e) => { setNumber(e.target.value) }}
+                    value={phone}
+                    onChange={(e) => { setPhone(e.target.value) }}
                     required
                 /></label>
             <button type='button' onClick={addContact}>Add contact</button>

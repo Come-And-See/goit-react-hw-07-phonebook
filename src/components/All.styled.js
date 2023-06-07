@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const DivAll = styled.div`
   background: #f0f0f0;
-  width: 350px;
+  width: 450px;
   border: 1px solid #000;
   border-radius: 15px;
   margin: 50px auto;
