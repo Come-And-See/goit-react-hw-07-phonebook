@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as css from '../All.styled';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { useDispatch, useSelector } from 'react-redux'
-import { GetContacts, PostContacts } from '../../redux/contact/contactSlice';
+import { PostContacts } from '../../redux/contact/contactSlice';
 
 const ContactForm = () => {
     const contacts = useSelector((state) => state.contact.contacts.items)
@@ -26,11 +26,8 @@ const ContactForm = () => {
 
         if (onDuplicate) {
             Notify.failure(`${name} is already in contacts.`);
-
         } else {
-            dispatch(PostContacts(contact)).then(() => {
-                dispatch(GetContacts());
-            });
+            dispatch(PostContacts(contact));
             setName('');
             setPhone('');
         }

@@ -23,22 +23,18 @@ export const GetContacts = createAsyncThunk(
 
 export const PostContacts = createAsyncThunk(
   'contact/PostContacts',
-  async function (contact, { rejectWithValue, dispatch }) {
+  async function (contact, { rejectWithValue }) {
     try {
       const response = await axios.post(
         `https://6480c2b3f061e6ec4d49d6bb.mockapi.io/contacts`,
-        {
-          name: contact.name,
-          phone: contact.phone,
-        }
+        contact
       );
 
-      if (response.status !== 200) {
+      if (response.status !== 201) {
         throw new Error('Server Error');
       }
 
       const data = await response.data;
-      dispatch(add(data));
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -48,7 +44,7 @@ export const PostContacts = createAsyncThunk(
 
 export const DeleteContacts = createAsyncThunk(
   'contact/DeleteContacts',
-  async function (id, { rejectWithValue, dispatch }) {
+  async function (id, { rejectWithValue }) {
     try {
       const response = await axios.delete(
         `https://6480c2b3f061e6ec4d49d6bb.mockapi.io/contacts/${id}`
@@ -58,7 +54,7 @@ export const DeleteContacts = createAsyncThunk(
         throw new Error('Server Error');
       }
 
-      dispatch(remove(id));
+      return id;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -78,14 +74,6 @@ export const counterSlice = createSlice({
   name: 'contact',
   initialState,
   reducers: {
-    add: (state, action) => {
-      state.contacts.items.push(action.payload);
-    },
-    remove: (state, action) => {
-      state.contacts.items = state.contacts.items.filter(
-        item => item.id !== action.payload
-      );
-    },
     filters: (state, action) => {
       state.filter = action.payload;
     },
@@ -101,8 +89,16 @@ export const counterSlice = createSlice({
     [GetContacts.rejected]: (state, action) => {
       state.contacts.error = action.payload;
     },
+    [DeleteContacts.fulfilled]: (state, action) => {
+      state.contacts.items = state.contacts.items.filter(
+        contact => contact.id !== action.payload
+      );
+    },
     [DeleteContacts.rejected]: (state, action) => {
       state.contacts.error = action.payload;
+    },
+    [PostContacts.fulfilled]: (state, action) => {
+      state.contacts.items.push(action.payload);
     },
     [PostContacts.rejected]: (state, action) => {
       state.contacts.error = action.payload;
